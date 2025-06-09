@@ -12,6 +12,7 @@ import com.example.beassignmentjava.exception.ApplicationException;
 import com.example.beassignmentjava.exception.ErrorCode;
 import com.example.beassignmentjava.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 public class AuthServiceImpl implements AuthService {
 
 	private final UserRepository userRepository;
+	private final BCryptPasswordEncoder passwordEncoder;
 	private final JwtUtil jwtUtil;
 
 	@Override
@@ -30,7 +32,7 @@ public class AuthServiceImpl implements AuthService {
 
 		User user = User.builder()
 			.username(signUpRequest.getUsername())
-			.password(signUpRequest.getPassword())
+			.password(passwordEncoder.encode(signUpRequest.getPassword()))
 			.nickName(signUpRequest.getNickname())
 			.role(UserRole.ROLE_USER)
 			.build();
@@ -45,7 +47,7 @@ public class AuthServiceImpl implements AuthService {
 		User user = userRepository.findByUsername(loginRequest.getUsername())
 			.orElseThrow(()->new ApplicationException(ErrorCode.INVALID_CREDENTIALS));
 
-		if(!user.getPassword().equals(loginRequest.getPassword())) {
+		if(!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
 			throw new ApplicationException(ErrorCode.INVALID_CREDENTIALS);
 		}
 		String jwtToken = jwtUtil.createToken(user.getId(), user.getUsername(), user.getNickName(), user.getRoles());
