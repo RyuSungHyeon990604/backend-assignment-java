@@ -10,16 +10,16 @@ import com.example.beassignmentjava.domain.auth.repository.UserRepository;
 import com.example.beassignmentjava.domain.auth.service.AuthService;
 import com.example.beassignmentjava.exception.ApplicationException;
 import com.example.beassignmentjava.exception.ErrorCode;
+import com.example.beassignmentjava.util.JwtUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
 	private final UserRepository userRepository;
-
-	public AuthServiceImpl(UserRepository userRepository) {
-		this.userRepository = userRepository;
-	}
+	private final JwtUtil jwtUtil;
 
 	@Override
 	public SignUpResponse signUp(SignUpRequest signUpRequest) {
@@ -48,8 +48,8 @@ public class AuthServiceImpl implements AuthService {
 		if(!user.getPassword().equals(loginRequest.getPassword())) {
 			throw new ApplicationException(ErrorCode.INVALID_CREDENTIALS);
 		}
-
-		return new LoginResponse("example token");
+		String jwtToken = jwtUtil.createToken(user.getId(), user.getUsername(), user.getNickName(), user.getRoles());
+		return new LoginResponse(jwtToken);
 	}
 
 	@Override

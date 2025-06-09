@@ -1,6 +1,7 @@
 package com.example.beassignmentjava.domain.auth.repository.impl;
 
 import com.example.beassignmentjava.domain.auth.entity.User;
+import com.example.beassignmentjava.domain.auth.enums.UserRole;
 import com.example.beassignmentjava.domain.auth.repository.UserRepository;
 import com.example.beassignmentjava.exception.ApplicationException;
 import com.example.beassignmentjava.exception.ErrorCode;
@@ -18,6 +19,16 @@ public class UserRepositoryMemoryImpl implements UserRepository {
 	public UserRepositoryMemoryImpl() {
 		users = new HashMap<>();
 		id = new AtomicLong();
+
+		//관리자 계정 기초세팅
+		User user = User.builder()
+			.nickName("admin")
+			.password("admin")
+			.username("admin")
+			.role(UserRole.ROLE_ADMIN)
+			.build();
+
+		save(user);
 	}
 
 	@Override
