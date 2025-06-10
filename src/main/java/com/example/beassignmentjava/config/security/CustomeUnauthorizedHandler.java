@@ -20,8 +20,8 @@ public class CustomeUnauthorizedHandler implements AuthenticationEntryPoint {
 
 		Map<String, Object> error = new HashMap<>();
 		Map<String, Object> detail = new HashMap<>();
-		detail.put("code", "UNAUTHORIZED");
-		detail.put("message", "인증이 필요합니다.");
+		detail.put("code", "INVALID_TOKEN");
+		detail.put("message", "유효하지 않은 인증 토큰입니다.");
 		error.put("error", detail);
 
 		ObjectMapper mapper = new ObjectMapper();
