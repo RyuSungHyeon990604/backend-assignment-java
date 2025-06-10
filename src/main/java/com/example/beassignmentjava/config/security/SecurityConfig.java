@@ -35,6 +35,7 @@ public class SecurityConfig {
 			//인가 설정
 			.authorizeHttpRequests(authorize -> authorize
 				.requestMatchers("/login", "/signup").permitAll()//회원가입과 로그인은 모두 허용
+				.requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/docs").permitAll() //swagger endpoint 허용
 				.requestMatchers("/admin/**").hasRole("ADMIN")
 				.anyRequest().authenticated()//나머지는 인증된 사용자만, 세부 인가처리는 @Secured 로 처리
 			)
