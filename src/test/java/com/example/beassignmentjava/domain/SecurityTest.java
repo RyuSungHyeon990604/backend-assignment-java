@@ -40,10 +40,10 @@ public class SecurityTest {
 	void requestWithMalformedToken_shouldReturn401() throws Exception {
 		// when & then
 		mockMvc.perform(patch("/admin/users/1/roles")
-				.header("Authorization", "Bearer invalid.token.structure")
+				.header("Authorization", "Bearer invalid token")
 				.contentType(MediaType.APPLICATION_JSON))
 			.andExpect(status().isUnauthorized())
-			.andExpect(jsonPath("$.error.message").value("유효하지 않은 JWT 서명입니다."));
+			.andExpect(jsonPath("$.error.message").value("유효하지 않은 인증 토큰입니다."));
 	}
 
 	@Test

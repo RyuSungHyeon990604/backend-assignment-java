@@ -3,18 +3,16 @@ package com.example.beassignmentjava.filter;
 import com.example.beassignmentjava.config.security.AuthUser;
 import com.example.beassignmentjava.config.security.JwtAuthenticationToken;
 import com.example.beassignmentjava.domain.auth.enums.UserRole;
+import com.example.beassignmentjava.exception.ErrorCode;
 import com.example.beassignmentjava.util.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import io.jsonwebtoken.security.SignatureException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,14 +39,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 				if (SecurityContextHolder.getContext().getAuthentication() == null) {
 					setAuthentication(claims);
 				}
-			} catch (SecurityException | MalformedJwtException | SignatureException  e) {
-				sendError(response, HttpServletResponse.SC_UNAUTHORIZED, "ACCESS_DENIED", "유효하지 않은 JWT 서명입니다.");
-				return;
-			} catch (ExpiredJwtException eje) {
-				sendError(response, HttpServletResponse.SC_UNAUTHORIZED, "ACCESS_DENIED", "만료된 JWT 토큰 입니다.");
-				return;
-			} catch (UnsupportedJwtException uje) {
-				sendError(response, HttpServletResponse.SC_BAD_REQUEST, "ACCESS_DENIED", "지원되지 않는 JWT 토큰 입니다.");
+			} catch (JwtException e) {
+				sendError(response, HttpServletResponse.SC_UNAUTHORIZED, "ACCESS_DENIED", ErrorCode.INVALID_TOKEN.getMessage());
 				return;
 			}
 		}
