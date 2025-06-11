@@ -14,8 +14,8 @@ public class RegisteredUserResponse {
 	@Schema(description = "사용자 이름", example = "Ryu")
 	private String username;
 
-	@Schema(description = "비밀번호", example = "1234")
-	private String password;
+	@Schema(description = "사용자 별명", example = "nickname")
+	private String nickname;
 
 	@Schema(description = "사용자 권한 목록", example = "[{\"role\": \"ROLE_USER\"}]")
 	private List<RoleDto> roles;
@@ -23,6 +23,6 @@ public class RegisteredUserResponse {
 
 	public static RegisteredUserResponse of(User user) {
 		List<RoleDto> roles = user.getRoles().stream().map(RoleDto::of).toList();
-		return new RegisteredUserResponse(user.getUsername(), user.getPassword(), roles);
+		return new RegisteredUserResponse(user.getUsername(), user.getNickName(), roles);
 	}
 }

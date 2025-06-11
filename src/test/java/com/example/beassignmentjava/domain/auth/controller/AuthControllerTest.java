@@ -1,6 +1,7 @@
 package com.example.beassignmentjava.domain.auth.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -49,7 +50,7 @@ class AuthControllerTest {
 	void signUp_success() throws Exception {
 		// given
 		SignUpRequest request = new SignUpRequest("ryu", "1234", "류성현");
-		given(authService.signUp(any())).willReturn(new RegisteredUserResponse("ryu", "1234", null));
+		given(authService.signUp(any(SignUpRequest.class))).willReturn(new RegisteredUserResponse("ryu", "nicknanme", null));
 
 		// when & then
 		mockMvc.perform(post("/signup")
@@ -64,7 +65,7 @@ class AuthControllerTest {
 	void signUp_userAlreadyExists() throws Exception {
 		// given
 		SignUpRequest request = new SignUpRequest("ryu", "1234", "류성현");
-		given(authService.signUp(any())).willThrow(new ApplicationException(ErrorCode.USER_ALREADY_EXISTS));
+		given(authService.signUp(any(SignUpRequest.class))).willThrow(new ApplicationException(ErrorCode.USER_ALREADY_EXISTS));
 
 		// when & then
 		mockMvc.perform(post("/signup")
@@ -79,7 +80,7 @@ class AuthControllerTest {
 	void login_success() throws Exception {
 		// given
 		LoginRequest request = new LoginRequest("ryu", "1234");
-		given(authService.login(any())).willReturn(new JwtResponse("Bearer token123"));
+		given(authService.login(any(LoginRequest.class))).willReturn(new JwtResponse("Bearer token123"));
 
 		// when & then
 		mockMvc.perform(post("/login")
@@ -94,7 +95,7 @@ class AuthControllerTest {
 	void login_fail_wrongPassword() throws Exception {
 		// given
 		LoginRequest request = new LoginRequest("ryu", "wrongpw");
-		given(authService.login(any())).willThrow(new ApplicationException(ErrorCode.INVALID_CREDENTIALS));
+		given(authService.login(any(LoginRequest.class))).willThrow(new ApplicationException(ErrorCode.INVALID_CREDENTIALS));
 
 		// when & then
 		mockMvc.perform(post("/login")
@@ -111,8 +112,8 @@ class AuthControllerTest {
 		Long userId = 1L;
 		String token = jwtUtil.createToken(1L, "admin", null, List.of(UserRole.ROLE_ADMIN));
 
-		given(authService.grantAdminRole(userId))
-			.willReturn(new RegisteredUserResponse("admin", "1234", List.of(new RoleDto(UserRole.ROLE_ADMIN))));
+		given(authService.grantAdminRole(anyLong()))
+			.willReturn(new RegisteredUserResponse("admin", "nickname", List.of(new RoleDto(UserRole.ROLE_ADMIN))));
 
 		// when & then
 		mockMvc.perform(patch("/admin/users/{userId}/roles", userId)
@@ -129,7 +130,7 @@ class AuthControllerTest {
 		Long userId = 999L;
 		String token = jwtUtil.createToken(1L, "admin", null, List.of(UserRole.ROLE_ADMIN));
 
-		given(authService.grantAdminRole(userId))
+		given(authService.grantAdminRole(anyLong()))
 			.willThrow(new ApplicationException(ErrorCode.INVALID_USER));
 
 		// when & then
