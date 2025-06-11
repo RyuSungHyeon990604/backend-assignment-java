@@ -5,20 +5,23 @@ import com.example.beassignmentjava.domain.auth.enums.UserRole;
 import com.example.beassignmentjava.domain.auth.repository.UserRepository;
 import com.example.beassignmentjava.exception.ApplicationException;
 import com.example.beassignmentjava.exception.ErrorCode;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UserRepositoryMemoryImpl implements UserRepository {
 	private final Map<Long, User> users;
+	private final Map<String, Long> usernameIdx;
 	private final AtomicLong id;
 
 	public UserRepositoryMemoryImpl() {
-		users = new HashMap<>();
-		id = new AtomicLong();
+		// 동일 username 생성 가능성 존재 ==> ConcurrentHashMap 사용
+		users = new ConcurrentHashMap<>();
+		usernameIdx = new ConcurrentHashMap<>();
+		id = new AtomicLong(1L);
 	}
 
 	@Override
@@ -29,7 +32,7 @@ public class UserRepositoryMemoryImpl implements UserRepository {
 
 	@Override
 	public Optional<User> findByUsername(String username) {
-		return users.values().stream().filter(user -> user.getUsername().equals(username)).findFirst();
+		return Optional.ofNullable(users.get(usernameIdx.get(username)));
 	}
 
 	@Override
@@ -40,12 +43,13 @@ public class UserRepositoryMemoryImpl implements UserRepository {
 		}
 
 		// 신규 유저일 때만 중복 확인
-		if (user.getId() == null && existsByUsername(user.getUsername())) {
-			throw new ApplicationException(ErrorCode.USER_ALREADY_EXISTS);
-		}
-
-		if(user.getId() == null) {
-			user.assignId(id.incrementAndGet());
+		if (user.getId() == null) {
+			Long newId = id.getAndIncrement();
+			Long existing = usernameIdx.putIfAbsent(user.getUsername(), newId);
+			if(existing != null) {
+				throw new ApplicationException(ErrorCode.USER_ALREADY_EXISTS);
+			}
+			user.assignId(newId);
 		}
 
 		users.put(user.getId(), user);
@@ -55,6 +59,6 @@ public class UserRepositoryMemoryImpl implements UserRepository {
 
 	@Override
 	public boolean existsByUsername(String username) {
-		return users.values().stream().anyMatch(user -> user.getUsername().equals(username));
+		return usernameIdx.get(username) != null;
 	}
 }
