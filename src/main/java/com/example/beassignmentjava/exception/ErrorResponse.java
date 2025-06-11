@@ -10,7 +10,7 @@ public class ErrorResponse {
 	@Schema(description = "에러 상세 정보", implementation = ErrorDetail.class)
 	private ErrorDetail error;
 
-	public ErrorResponse(String code, String message) {
-		this.error = new ErrorDetail(code, message);
+	public ErrorResponse(ErrorCode errorCode) {
+		this.error = new ErrorDetail(errorCode.name(), errorCode.getMessage());
 	}
 }

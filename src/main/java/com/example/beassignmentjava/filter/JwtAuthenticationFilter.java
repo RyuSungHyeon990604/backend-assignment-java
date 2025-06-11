@@ -4,6 +4,7 @@ import com.example.beassignmentjava.config.security.AuthUser;
 import com.example.beassignmentjava.config.security.JwtAuthenticationToken;
 import com.example.beassignmentjava.domain.auth.enums.UserRole;
 import com.example.beassignmentjava.exception.ErrorCode;
+import com.example.beassignmentjava.exception.ErrorResponse;
 import com.example.beassignmentjava.util.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
@@ -13,9 +14,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -40,7 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 					setAuthentication(claims);
 				}
 			} catch (JwtException e) {
-				sendError(response, HttpServletResponse.SC_UNAUTHORIZED, "ACCESS_DENIED", ErrorCode.INVALID_TOKEN.getMessage());
+				sendError(response, ErrorCode.INVALID_TOKEN);
 				return;
 			}
 		}
@@ -50,28 +49,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	private void setAuthentication(Claims claims) {
 		Long userId = Long.valueOf(claims.getSubject());
 		String username = claims.get("username", String.class);
-		List<String> roleNames = claims.get("roles", List.class);
-		List<UserRole> rolse = roleNames.stream()
-			.map(UserRole::valueOf).toList();
+		List<?> roleNames = claims.get("roles", List.class);
+		List<UserRole> roles = roleNames.stream()
+			.map(name -> UserRole.valueOf((String) name)).toList();
 
-		AuthUser authUser = new AuthUser(userId, username, rolse);
+		AuthUser authUser = new AuthUser(userId, username, roles);
 		JwtAuthenticationToken authenticationToken = new JwtAuthenticationToken(authUser);
 		SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 	}
 
-	private void sendError(HttpServletResponse response, int status, String code, String message) throws IOException {
-		response.setStatus(status);
+	private void sendError(HttpServletResponse response, ErrorCode errorCode) throws IOException {
+		response.setStatus(errorCode.getStatus().value());
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
 
-		Map<String, Object> body = new HashMap<>();
-		Map<String, Object> error = new HashMap<>();
-		error.put("code", code);
-		error.put("message", message);
-		body.put("error", error);
+		ErrorResponse errorResponse = new ErrorResponse(errorCode);
 
 		ObjectMapper mapper = new ObjectMapper();
-		String json = mapper.writeValueAsString(body);
+		String json = mapper.writeValueAsString(errorResponse);
 		response.getWriter().write(json);
 	}
 }
