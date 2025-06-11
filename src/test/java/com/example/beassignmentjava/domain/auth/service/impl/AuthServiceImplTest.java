@@ -7,8 +7,8 @@ import static org.mockito.BDDMockito.given;
 
 import com.example.beassignmentjava.domain.auth.dto.request.LoginRequest;
 import com.example.beassignmentjava.domain.auth.dto.request.SignUpRequest;
-import com.example.beassignmentjava.domain.auth.dto.response.LoginResponse;
-import com.example.beassignmentjava.domain.auth.dto.response.SignUpResponse;
+import com.example.beassignmentjava.domain.auth.dto.response.JwtResponse;
+import com.example.beassignmentjava.domain.auth.dto.response.RegisteredUserResponse;
 import com.example.beassignmentjava.domain.auth.entity.User;
 import com.example.beassignmentjava.domain.auth.enums.UserRole;
 import com.example.beassignmentjava.domain.auth.repository.UserRepository;
@@ -48,7 +48,7 @@ class AuthServiceImplTest {
 		given(userRepository.save(any())).willReturn(user);
 
 		//when
-		SignUpResponse response = authService.signUp(request);
+		RegisteredUserResponse response = authService.signUp(request);
 
 		//then
 		assertEquals("testuser", response.getUsername());
@@ -77,7 +77,7 @@ class AuthServiceImplTest {
 		given(jwtUtil.createToken(any(), any(), any(), any())).willReturn("jwt-token");
 
 		//when
-		LoginResponse response = authService.login(request);
+		JwtResponse response = authService.login(request);
 
 		//then
 		assertEquals("jwt-token", response.getToken());
@@ -119,7 +119,7 @@ class AuthServiceImplTest {
 		given(userRepository.save(any())).willReturn(user);
 
 		//when
-		SignUpResponse response = authService.grantAdminRole(1L);
+		RegisteredUserResponse response = authService.grantAdminRole(1L);
 
 		//then
 		assertEquals(UserRole.ROLE_ADMIN, response.getRoles().get(0).getRole());

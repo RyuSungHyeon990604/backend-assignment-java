@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class LoginResponse {
+public class JwtResponse {
 
 	@Schema(description = "JWT")
 	private String token;

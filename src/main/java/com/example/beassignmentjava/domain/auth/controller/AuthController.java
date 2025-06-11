@@ -2,8 +2,8 @@ package com.example.beassignmentjava.domain.auth.controller;
 
 import com.example.beassignmentjava.domain.auth.dto.request.LoginRequest;
 import com.example.beassignmentjava.domain.auth.dto.request.SignUpRequest;
-import com.example.beassignmentjava.domain.auth.dto.response.LoginResponse;
-import com.example.beassignmentjava.domain.auth.dto.response.SignUpResponse;
+import com.example.beassignmentjava.domain.auth.dto.response.JwtResponse;
+import com.example.beassignmentjava.domain.auth.dto.response.RegisteredUserResponse;
 import com.example.beassignmentjava.domain.auth.service.AuthService;
 import com.example.beassignmentjava.exception.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,7 +35,7 @@ public class AuthController {
 			content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	})
 	@PostMapping("/signup")
-	private ResponseEntity<SignUpResponse> signUp(@RequestBody SignUpRequest signUpRequest) {
+	private ResponseEntity<RegisteredUserResponse> signUp(@RequestBody SignUpRequest signUpRequest) {
 		return ResponseEntity.status(HttpStatus.CREATED).body(authService.signUp(signUpRequest));
 	}
 
@@ -46,7 +46,7 @@ public class AuthController {
 			content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	})
 	@PostMapping("/login")
-	private ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
+	private ResponseEntity<JwtResponse> login(@RequestBody LoginRequest loginRequest) {
 		return ResponseEntity.ok(authService.login(loginRequest));
 	}
 
@@ -63,7 +63,7 @@ public class AuthController {
 			content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	})
 	@PatchMapping("/admin/users/{userId}/roles")
-	private ResponseEntity<SignUpResponse> grantAdminRole(@PathVariable Long userId) {
+	private ResponseEntity<RegisteredUserResponse> grantAdminRole(@PathVariable Long userId) {
 		return ResponseEntity.ok(authService.grantAdminRole(userId));
 	}
 }

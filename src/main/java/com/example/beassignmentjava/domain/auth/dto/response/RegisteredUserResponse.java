@@ -9,7 +9,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class SignUpResponse {
+public class RegisteredUserResponse {
 
 	@Schema(description = "사용자 이름", example = "Ryu")
 	private String username;
@@ -21,8 +21,8 @@ public class SignUpResponse {
 	private List<RoleDto> roles;
 
 
-	public static SignUpResponse of(User user) {
+	public static RegisteredUserResponse of(User user) {
 		List<RoleDto> roles = user.getRoles().stream().map(RoleDto::of).toList();
-		return new SignUpResponse(user.getUsername(), user.getPassword(), roles);
+		return new RegisteredUserResponse(user.getUsername(), user.getPassword(), roles);
 	}
 }

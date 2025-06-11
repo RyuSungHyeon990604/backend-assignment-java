@@ -10,8 +10,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.example.beassignmentjava.domain.auth.dto.RoleDto;
 import com.example.beassignmentjava.domain.auth.dto.request.LoginRequest;
 import com.example.beassignmentjava.domain.auth.dto.request.SignUpRequest;
-import com.example.beassignmentjava.domain.auth.dto.response.LoginResponse;
-import com.example.beassignmentjava.domain.auth.dto.response.SignUpResponse;
+import com.example.beassignmentjava.domain.auth.dto.response.JwtResponse;
+import com.example.beassignmentjava.domain.auth.dto.response.RegisteredUserResponse;
 import com.example.beassignmentjava.domain.auth.enums.UserRole;
 import com.example.beassignmentjava.domain.auth.service.AuthService;
 import com.example.beassignmentjava.exception.ApplicationException;
@@ -49,7 +49,7 @@ class AuthControllerTest {
 	void signUp_success() throws Exception {
 		// given
 		SignUpRequest request = new SignUpRequest("ryu", "1234", "류성현");
-		given(authService.signUp(any())).willReturn(new SignUpResponse("ryu", "1234", null));
+		given(authService.signUp(any())).willReturn(new RegisteredUserResponse("ryu", "1234", null));
 
 		// when & then
 		mockMvc.perform(post("/signup")
@@ -79,7 +79,7 @@ class AuthControllerTest {
 	void login_success() throws Exception {
 		// given
 		LoginRequest request = new LoginRequest("ryu", "1234");
-		given(authService.login(any())).willReturn(new LoginResponse("Bearer token123"));
+		given(authService.login(any())).willReturn(new JwtResponse("Bearer token123"));
 
 		// when & then
 		mockMvc.perform(post("/login")
@@ -112,7 +112,7 @@ class AuthControllerTest {
 		String token = jwtUtil.createToken(1L, "admin", null, List.of(UserRole.ROLE_ADMIN));
 
 		given(authService.grantAdminRole(userId))
-			.willReturn(new SignUpResponse("admin", "1234", List.of(new RoleDto(UserRole.ROLE_ADMIN))));
+			.willReturn(new RegisteredUserResponse("admin", "1234", List.of(new RoleDto(UserRole.ROLE_ADMIN))));
 
 		// when & then
 		mockMvc.perform(patch("/admin/users/{userId}/roles", userId)

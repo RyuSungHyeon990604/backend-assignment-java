@@ -2,8 +2,8 @@ package com.example.beassignmentjava.domain.auth.service.impl;
 
 import com.example.beassignmentjava.domain.auth.dto.request.LoginRequest;
 import com.example.beassignmentjava.domain.auth.dto.request.SignUpRequest;
-import com.example.beassignmentjava.domain.auth.dto.response.LoginResponse;
-import com.example.beassignmentjava.domain.auth.dto.response.SignUpResponse;
+import com.example.beassignmentjava.domain.auth.dto.response.JwtResponse;
+import com.example.beassignmentjava.domain.auth.dto.response.RegisteredUserResponse;
 import com.example.beassignmentjava.domain.auth.entity.User;
 import com.example.beassignmentjava.domain.auth.enums.UserRole;
 import com.example.beassignmentjava.domain.auth.repository.UserRepository;
@@ -24,7 +24,7 @@ public class AuthServiceImpl implements AuthService {
 	private final JwtUtil jwtUtil;
 
 	@Override
-	public SignUpResponse signUp(SignUpRequest signUpRequest) {
+	public RegisteredUserResponse signUp(SignUpRequest signUpRequest) {
 
 		if(userRepository.existsByUsername(signUpRequest.getUsername())) {
 			throw new ApplicationException(ErrorCode.USER_ALREADY_EXISTS);
@@ -39,11 +39,11 @@ public class AuthServiceImpl implements AuthService {
 
 		User savedUser = userRepository.save(user);
 
-		return SignUpResponse.of(savedUser);
+		return RegisteredUserResponse.of(savedUser);
 	}
 
 	@Override
-	public LoginResponse login(LoginRequest loginRequest) {
+	public JwtResponse login(LoginRequest loginRequest) {
 		User user = userRepository.findByUsername(loginRequest.getUsername())
 			.orElseThrow(()->new ApplicationException(ErrorCode.INVALID_CREDENTIALS));
 
@@ -51,16 +51,16 @@ public class AuthServiceImpl implements AuthService {
 			throw new ApplicationException(ErrorCode.INVALID_CREDENTIALS);
 		}
 		String jwtToken = jwtUtil.createToken(user.getId(), user.getUsername(), user.getNickName(), user.getRoles());
-		return new LoginResponse(jwtToken);
+		return new JwtResponse(jwtToken);
 	}
 
 	@Override
-	public SignUpResponse grantAdminRole(Long userId) {
+	public RegisteredUserResponse grantAdminRole(Long userId) {
 		User user = userRepository.findById(userId)
 			.orElseThrow(()->new ApplicationException(ErrorCode.INVALID_USER));
 		user.grantAdminRole();
 		userRepository.save(user);
 
-		return SignUpResponse.of(user);
+		return RegisteredUserResponse.of(user);
 	}
 }
