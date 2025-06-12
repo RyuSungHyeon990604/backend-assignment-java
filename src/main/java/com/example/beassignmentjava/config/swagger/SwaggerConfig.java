@@ -6,6 +6,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -18,6 +19,7 @@ public class SwaggerConfig {
 				.title("BackEnd-Assignment-Java API")
 				.description("바로인턴 직무과제 (JAVA)")
 			).components(jwtComponents())
+			.addServersItem(new Server().url("/"))
 			.addSecurityItem(new SecurityRequirement().addList("jwt"));
 	}
 
