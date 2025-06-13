@@ -1,10 +1,13 @@
 package com.example.beassignmentjava.domain.auth.controller;
 
+import com.example.beassignmentjava.config.swagger.ApiErrorResponse;
+import com.example.beassignmentjava.config.swagger.ApiErrorResponses;
 import com.example.beassignmentjava.domain.auth.dto.request.LoginRequest;
 import com.example.beassignmentjava.domain.auth.dto.request.SignUpRequest;
 import com.example.beassignmentjava.domain.auth.dto.response.JwtResponse;
 import com.example.beassignmentjava.domain.auth.dto.response.RegisteredUserResponse;
 import com.example.beassignmentjava.domain.auth.service.AuthService;
+import com.example.beassignmentjava.exception.ErrorCode;
 import com.example.beassignmentjava.exception.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -29,22 +32,16 @@ public class AuthController {
 	private final AuthService authService;
 
 	@Operation(summary = "회원가입", description = "신규 유저를 생성합니다.")
-	@ApiResponses({
-		@ApiResponse(responseCode = "201", description = "회원가입 성공"),
-		@ApiResponse(responseCode = "400", description = "이미 존재하는 사용자",
-			content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-	})
+	@ApiResponse(responseCode = "201", description = "회원가입 성공")
+	@ApiErrorResponse(error= ErrorCode.USER_ALREADY_EXISTS, message = "이미 존재하는 사용자")
 	@PostMapping("/signup")
 	private ResponseEntity<RegisteredUserResponse> signUp(@RequestBody SignUpRequest signUpRequest) {
 		return ResponseEntity.status(HttpStatus.CREATED).body(authService.signUp(signUpRequest));
 	}
 
 	@Operation(summary = "로그인", description = "JWT 토큰을 발급받습니다.")
-	@ApiResponses({
-		@ApiResponse(responseCode = "200", description = "로그인 성공"),
-		@ApiResponse(responseCode = "401", description = "아이디 또는 비밀번호 불일치",
-			content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-	})
+	@ApiResponse(responseCode = "200", description = "로그인 성공")
+	@ApiErrorResponse(error= ErrorCode.INVALID_CREDENTIALS, message = "아이디 또는 비밀번호 불일치")
 	@PostMapping("/login")
 	private ResponseEntity<JwtResponse> login(@RequestBody LoginRequest loginRequest) {
 		return ResponseEntity.ok(authService.login(loginRequest));
@@ -55,12 +52,10 @@ public class AuthController {
 		description = "특정 사용자에게 관리자 권한을 부여합니다.",
 		security = @SecurityRequirement(name = "jwt")
 	)
-	@ApiResponses({
-		@ApiResponse(responseCode = "200", description = "관리자 권한 부여 성공"),
-		@ApiResponse(responseCode = "404", description = "존재하지 않는 사용자",
-			content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-		@ApiResponse(responseCode = "403", description = "관리자 권한 없음",
-			content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+	@ApiResponse(responseCode = "200", description = "관리자 권한 부여 성공")
+	@ApiErrorResponses({
+		@ApiErrorResponse(error= ErrorCode.INVALID_USER, message = "존재하지 않는 사용자"),
+		@ApiErrorResponse(error= ErrorCode.ACCESS_DENIED, message = "관리자 권한 없음")
 	})
 	@PatchMapping("/admin/users/{userId}/roles")
 	private ResponseEntity<RegisteredUserResponse> grantAdminRole(@PathVariable Long userId) {

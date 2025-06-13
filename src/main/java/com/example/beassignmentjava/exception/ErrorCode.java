@@ -1,6 +1,7 @@
 package com.example.beassignmentjava.exception;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
@@ -17,6 +18,7 @@ public enum ErrorCode {
 	ID_ALREADY_ASSIGNED("이미 ID가 할당된 사용자입니다.", BAD_REQUEST),
 	INVALID_TOKEN("유효하지 않은 인증 토큰입니다.", UNAUTHORIZED),
 	INVALID_USER("유효하지 않은 유저입니다.", NOT_FOUND),
+	ACCESS_DENIED("접근 권한이 없습니다.",FORBIDDEN),
 	INVALID_ROLE("유효하지 않은 권한입니다.", UNAUTHORIZED);
 
 
